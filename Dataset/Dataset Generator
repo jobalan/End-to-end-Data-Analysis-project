@@ -1,0 +1,114 @@
+"""
+Synthetic E-commerce Dataset Generator
+We are Creating users.csv, products.csv, orders.csv, order_items.csv in Python for the Analysis.
+"""
+import pandas as pd
+import numpy as np
+from faker import Faker
+from datetime import datetime, timedelta
+import random
+
+fake = Faker()
+Faker.seed(42)
+np.random.seed(42)
+random.seed(42)
+
+# ----------------------- CONFIG -----------------------
+NUM_USERS = 5000
+NUM_PRODUCTS = 800
+NUM_ORDERS = 20000
+
+# ----------------------- USERS -----------------------
+users = []
+for i in range(1, NUM_USERS + 1):
+    users.append({
+        "user_id": i,
+        "first_name": fake.first_name(),
+        "last_name": fake.last_name(),
+        "email": fake.email(),
+        "signup_date": fake.date_between(start_date="-3y", end_date="today"),
+        "city": fake.city(),
+        "state": fake.state(),
+        "country": fake.country(),
+        "age": np.random.randint(18, 65),
+        "gender": random.choice(["Male", "Female", "Other"]),
+        "customer_segment": random.choice(["Regular", "Loyal", "High-Value", "At-Risk"])
+    })
+
+users_df = pd.DataFrame(users)
+users_df.to_csv("users.csv", index=False)
+
+# ----------------------- PRODUCTS -----------------------
+categories = ["Electronics", "Fashion", "Home", "Beauty", "Sports", "Toys"]
+subcategories = {
+    "Electronics": ["Mobiles", "Laptops", "Accessories"],
+    "Fashion": ["Men", "Women", "Kids"],
+    "Home": ["Kitchen", "Furniture", "Decor"],
+    "Beauty": ["Skincare", "Haircare", "Makeup"],
+    "Sports": ["Outdoor", "Fitness", "Team Sports"],
+    "Toys": ["Educational", "Action Figures", "Board Games"]
+}
+
+products = []
+for i in range(1, NUM_PRODUCTS + 1):
+    cat = random.choice(categories)
+    sub = random.choice(subcategories[cat])
+    price = round(np.random.uniform(5, 500), 2)
+    cost = round(price * np.random.uniform(0.4, 0.8), 2)
+    
+    products.append({
+        "product_id": i,
+        "name": fake.word().capitalize() + f" {sub}",
+        "category": cat,
+        "subcategory": sub,
+        "price": price,
+        "cost": cost,
+        "launch_date": fake.date_between(start_date="-2y", end_date="today"),
+        "brand": fake.company()
+    })
+
+products_df = pd.DataFrame(products)
+products_df.to_csv("products.csv", index=False)
+
+# ----------------------- ORDERS -----------------------
+orders = []
+order_items = []
+
+for order_id in range(1, NUM_ORDERS + 1):
+    user = random.randint(1, NUM_USERS)
+    order_date = fake.date_between(start_date="-2y", end_date="today")
+
+    orders.append({
+        "order_id": order_id,
+        "user_id": user,
+        "order_date": order_date,
+        "order_status": random.choice(["Completed", "Delivered", "Cancelled", "Returned"]),
+        "payment_method": random.choice(["UPI", "Card", "NetBanking", "COD"]),
+        "shipping_cost": round(np.random.uniform(0, 50), 2),
+        "coupon_code": random.choice([None, "NEW10", "SAVE20", "FESTIVE30"])
+    })
+
+    # create 1-5 items per order
+    num_items = random.randint(1, 5)
+    for j in range(num_items):
+        prod = random.randint(1, NUM_PRODUCTS)
+        qty = random.randint(1, 4)
+        price = products_df.loc[products_df.product_id == prod, "price"].values[0]
+        discount = random.choice([0, 5, 10, 15, 20])
+
+        order_items.append({
+            "order_item_id": len(order_items) + 1,
+            "order_id": order_id,
+            "product_id": prod,
+            "quantity": qty,
+            "unit_price": price,
+            "discount": discount
+        })
+
+orders_df = pd.DataFrame(orders)
+orders_df.to_csv("orders.csv", index=False)
+
+order_items_df = pd.DataFrame(order_items)
+order_items_df.to_csv("order_items.csv", index=False)
+
+print("Dataset generated: users.csv, products.csv, orders.csv, order_items.csv")
