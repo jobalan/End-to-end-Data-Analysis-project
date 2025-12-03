@@ -1,7 +1,11 @@
-"""
-Synthetic E-commerce Dataset Generator
-We are Creating users.csv, products.csv, orders.csv, order_items.csv in Python for the Analysis.
-"""
+/*
+=============================================================================
+Python Script: Creates DataSets
+=============================================================================
+Script Purpose:
+    This script creates users.csv, products.csv, orders.csv, order_items.csv in Python for the Analysis.
+=============================================================================    
+*/
 import pandas as pd
 import numpy as np
 from faker import Faker
